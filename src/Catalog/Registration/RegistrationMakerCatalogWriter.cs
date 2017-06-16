@@ -90,6 +90,7 @@ namespace NuGet.Services.Metadata.Catalog.Registration
 
                 var saveOperation = new ResourceSaveOperation();
                 saveOperation.ResourceUri = resourceUri;
+                saveOperation.AliasResourceUri = item.GetItemAliasAddress();
 
                 if (!registrationMakerCatalogItem.IsExistingItem && content != null)
                 {
@@ -115,7 +116,7 @@ namespace NuGet.Services.Metadata.Catalog.Registration
                 string lower = partition.First().Key.ToString();
                 string upper = partition.Last().Key.ToString();
 
-                Uri newPageUri = CreatePageUri(Storage.BaseAddress, ("page/" + lower + "/" + upper).ToLowerInvariant());
+                Uri newPageUri = CreatePageUri(Storage.AliasBaseAddress == null ? Storage.BaseAddress : Storage.AliasBaseAddress, ("page/" + lower + "/" + upper).ToLowerInvariant());
 
                 IDictionary<string, CatalogItemSummary> newPageItemEntries = new Dictionary<string, CatalogItemSummary>();
                 foreach (KeyValuePair<NuGetVersion, KeyValuePair<string, CatalogItemSummary>> version in partition)

@@ -66,6 +66,8 @@ namespace Ng.Jobs
             var verbose = arguments.GetOrDefault(Arguments.Verbose, false);
 
             var contentBaseAddress = arguments.GetOrDefault<string>(Arguments.ContentBaseAddress);
+            string globalContentBaseAddress = null;// arguments.GetOrDefault<string>(Arguments.GlobalContentBaseAddress);
+            var storageSuffix = arguments.GetOrDefault<string>(Arguments.WriteStorageSuffix);
 
             // The term "legacy" here refers to the registration hives that do not contain any SemVer 2.0.0 packages.
             // In production, this is two registration hives:
@@ -86,9 +88,9 @@ namespace Ng.Jobs
                 storageFactories.SemVer2StorageFactory,
                 CommandHelpers.GetHttpMessageHandlerFactory(verbose))
             {
-                ContentBaseAddress = contentBaseAddress == null
-                    ? null
-                    : new Uri(contentBaseAddress)
+                ContentBaseAddress = globalContentBaseAddress == null
+                    ? (contentBaseAddress == null ? null : new Uri(contentBaseAddress))
+                    : new Uri(globalContentBaseAddress)
             };
 
             var cursorStorage = storageFactories.LegacyStorageFactory.Create();

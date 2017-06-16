@@ -8,6 +8,7 @@ namespace NuGet.Services.Metadata.Catalog
     public class ResourceSaveOperation
     {
         public Uri ResourceUri { get; set; }
+        public Uri AliasResourceUri { get; set; }
         public Task SaveTask { get; set; }
     }
 }

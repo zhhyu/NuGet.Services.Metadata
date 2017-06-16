@@ -38,6 +38,7 @@ namespace Ng
 
         public const string ConnectionString = "connectionString";
         public const string ContentBaseAddress = "contentBaseAddress";
+        //public const string GlobalContentBaseAddress = "globalContentBaseAddress";
         public const string StorageAccountName = "storageAccountName";
         public const string StorageBaseAddress = "storageBaseAddress";
         public const string StorageContainer = "storageContainer";
@@ -45,6 +46,8 @@ namespace Ng
         public const string StoragePath = "storagePath";
         public const string StorageType = "storageType";
         public const string Version = "version";
+        public const string AliasBasedAddress = "aliasBasedAddress";
+        public const string WriteStorageSuffix = "writeStorageSuffix";
         #endregion
 
         #region Catalog2Lucene

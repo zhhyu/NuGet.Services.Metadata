@@ -16,9 +16,16 @@ namespace NuGet.Services.Metadata.Catalog
 
         public Uri BaseAddress { get; set; }
 
+        public Uri AliasBaseAddress { get; set; }
+
         public abstract Uri GetItemType();
 
         public abstract Uri GetItemAddress();
+
+        public virtual Uri GetItemAliasAddress()
+        {
+            return GetItemAddress();
+        }
 
         public virtual StorageContent CreateContent(CatalogContext context)
         {

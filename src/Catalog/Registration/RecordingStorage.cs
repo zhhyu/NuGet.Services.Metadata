@@ -15,7 +15,6 @@ namespace NuGet.Services.Metadata.Catalog.Registration
         public RecordingStorage(IStorage storage)
         {
             _innerStorage = storage;
-
             Loaded = new HashSet<Uri>();
             Saved = new HashSet<Uri>();
         }
@@ -54,9 +53,19 @@ namespace NuGet.Services.Metadata.Catalog.Registration
             get { return _innerStorage.BaseAddress; }
         }
 
+        public Uri AliasBaseAddress
+        {
+            get { return _innerStorage.AliasBaseAddress; }
+        }
+
         public Uri ResolveUri(string relativeUri)
         {
             return _innerStorage.ResolveUri(relativeUri);
+        }
+
+        public Uri ResolveUri(string relativeUri, Uri address)
+        {
+            return _innerStorage.ResolveUri(relativeUri, address);
         }
 
         public Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken)

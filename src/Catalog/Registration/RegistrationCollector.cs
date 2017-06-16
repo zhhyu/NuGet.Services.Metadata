@@ -44,6 +44,8 @@ namespace NuGet.Services.Metadata.Catalog.Registration
 
         public Uri ContentBaseAddress { get; set; }
 
+        public Uri AliasRegistrationBaseAddress { get; set; }
+
         protected override Task<IEnumerable<CatalogItemBatch>> CreateBatches(IEnumerable<CatalogItem> catalogItems)
         {
             // Grouping batches by commit is slow if it contains

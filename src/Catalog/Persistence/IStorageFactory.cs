@@ -8,5 +8,6 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
     {
         Storage Create(string name = null);
         Uri BaseAddress { get; }
+        Uri AliasBaseAddress { get; }
     }
 }

@@ -30,7 +30,7 @@ namespace NuGet.Services.Metadata.Catalog
             _batch = new List<CatalogItem>();
             _open = true;
 
-            RootUri = Storage.ResolveUri("index.json");
+            RootUri = Storage.ResolveUri("index.json", Storage.AliasBaseAddress);
         }
         public void Dispose()
         {
@@ -111,6 +111,7 @@ namespace NuGet.Services.Metadata.Catalog
                     item.TimeStamp = commitTimeStamp;
                     item.CommitId = commitId;
                     item.BaseAddress = Storage.BaseAddress;
+                    item.AliasBaseAddress = Storage.AliasBaseAddress;
 
                     saveOperationForItem = CreateSaveOperationForItem(Storage, Context, item, cancellationToken);
                     if (saveOperationForItem.SaveTask != null)
@@ -119,8 +120,8 @@ namespace NuGet.Services.Metadata.Catalog
                     }
 
                     IGraph pageContent = item.CreatePageContent(Context);
-
-                    if (!pageItems.TryAdd(saveOperationForItem.ResourceUri.AbsoluteUri, new CatalogItemSummary(item.GetItemType(), commitId, commitTimeStamp, null, pageContent)))
+                    Uri id =  saveOperationForItem.AliasResourceUri ?? saveOperationForItem.ResourceUri;
+                    if (!pageItems.TryAdd(id.AbsoluteUri, new CatalogItemSummary(item.GetItemType(), commitId, commitTimeStamp, null, pageContent)))
                     {
                         throw new Exception("Duplicate page: " + saveOperationForItem.ResourceUri.AbsoluteUri);
                     }

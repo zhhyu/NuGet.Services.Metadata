@@ -15,7 +15,9 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
         Task Delete(Uri resourceUri, CancellationToken cancellationToken);
         Task<string> LoadString(Uri resourceUri, CancellationToken cancellationToken);
         Uri BaseAddress { get; }
+        Uri AliasBaseAddress { get; }
         Uri ResolveUri(string relativeUri);
+        Uri ResolveUri(string relativeUri, Uri address);
         Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken);
     }
 }

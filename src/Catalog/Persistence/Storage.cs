@@ -117,6 +117,10 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
         }
 
         public Uri BaseAddress { get; protected set; }
+
+        //used to hide the real base address under a CName
+        public Uri AliasBaseAddress { get; set; }
+
         public abstract bool Exists(string fileName);
         public abstract Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken);
 
@@ -153,12 +157,22 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
 
         public Uri ResolveUri(string relativeUri)
         {
-            return new Uri(BaseAddress, relativeUri);
+            return ResolveUri(relativeUri, BaseAddress);
+        }
+
+        public Uri ResolveUri(string relativeUri, Uri address)
+        {
+            return new Uri(address, relativeUri);
         }
 
         protected string GetName(Uri uri)
         {
-            var address = Uri.UnescapeDataString(BaseAddress.GetLeftPart(UriPartial.Path));
+            return GetName(uri,BaseAddress);
+        }
+
+        protected string GetName(Uri uri, Uri baseAddressUri )
+        {
+            var address = Uri.UnescapeDataString(baseAddressUri.GetLeftPart(UriPartial.Path));
             if (!address.EndsWith("/"))
             {
                 address += "/";

@@ -18,6 +18,7 @@ namespace NuGet.Services.Metadata.Catalog.Registration
         private readonly Uri _catalogUri;
         private readonly IGraph _catalogItem;
         private Uri _itemAddress;
+        private Uri _itemAliasAddress;
         private readonly Uri _packageContentBaseAddress;
         private Uri _packageContentAddress;
         private readonly Uri _registrationBaseAddress;
@@ -41,7 +42,7 @@ namespace NuGet.Services.Metadata.Catalog.Registration
         public override StorageContent CreateContent(CatalogContext context)
         {
             IGraph graph = new Graph();
-            INode subject = graph.CreateUriNode(GetItemAddress());
+            INode subject = graph.CreateUriNode(GetItemAliasAddress());
 
             graph.CreateUriNode(_catalogUri);
 
@@ -84,7 +85,21 @@ namespace NuGet.Services.Metadata.Catalog.Registration
             return _itemAddress;
         }
 
-       private Uri GetRegistrationAddress()
+        public override Uri GetItemAliasAddress()
+        {
+            if (_itemAliasAddress == null)
+            {
+                if (AliasBaseAddress == null)
+                {
+                    return GetItemAddress();
+                }
+                _itemAliasAddress = new Uri(GetItemAddress().AbsoluteUri.Replace(BaseAddress.AbsoluteUri, AliasBaseAddress.AbsoluteUri));
+            }
+            return _itemAliasAddress;
+        }
+
+
+        private Uri GetRegistrationAddress()
         {
             if (_registrationAddress == null)
             {
@@ -168,9 +183,9 @@ namespace NuGet.Services.Metadata.Catalog.Registration
                     SparqlParameterizedString sparql = new SparqlParameterizedString();
                     sparql.CommandText = Utils.GetResource("sparql.ConstructRegistrationPageContentGraph.rq");
 
-                    sparql.SetUri("package", GetItemAddress());
+                    sparql.SetUri("package", GetItemAliasAddress());
                     sparql.SetUri("catalogEntry", _catalogUri);
-                    sparql.SetUri("baseAddress", BaseAddress);
+                    sparql.SetUri("baseAddress", AliasBaseAddress??BaseAddress);
                     sparql.SetUri("packageContent", GetPackageContentAddress());
                     sparql.SetUri("registrationBaseAddress", _registrationBaseAddress);
 

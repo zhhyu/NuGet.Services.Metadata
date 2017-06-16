@@ -21,6 +21,8 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
 
         public Uri BaseAddress => new Uri(_innerStorageFactory.BaseAddress, _name);
 
+        public Uri AliasBaseAddress => new Uri(_innerStorageFactory.AliasBaseAddress, _name);
+
         public Storage Create(string name = null)
         {
             return _innerStorageFactory.Create($"{_name}/{name}");

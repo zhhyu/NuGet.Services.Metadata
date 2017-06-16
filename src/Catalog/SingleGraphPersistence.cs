@@ -67,7 +67,7 @@ namespace NuGet.Services.Metadata.Catalog
 
         public Uri CreatePageUri(Uri baseAddress, string relativeAddress)
         {
-            return new Uri(_storage.BaseAddress, "index.json#" + relativeAddress);
+            return new Uri(baseAddress, "index.json#" + relativeAddress);
         }
     }
 }

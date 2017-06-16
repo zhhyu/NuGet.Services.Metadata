@@ -118,7 +118,9 @@ namespace Ng
                 { Arguments.StorageAccountName, Arguments.StorageAccountName },
                 { Arguments.StorageKeyValue, Arguments.StorageKeyValue },
                 { Arguments.StorageContainer, Arguments.StorageContainer },
-                { Arguments.StoragePath, Arguments.StoragePath }
+                { Arguments.StoragePath, Arguments.StoragePath },
+                { Arguments.AliasBasedAddress, Arguments.AliasBasedAddress },
+                { Arguments.WriteStorageSuffix, Arguments.WriteStorageSuffix }
             };
 
             return CreateStorageFactoryImpl(arguments, names, verbose, compressed: false);
@@ -137,7 +139,9 @@ namespace Ng
                 { Arguments.StorageAccountName, Arguments.CompressedStorageAccountName },
                 { Arguments.StorageKeyValue, Arguments.CompressedStorageKeyValue },
                 { Arguments.StorageContainer, Arguments.CompressedStorageContainer },
-                { Arguments.StoragePath, Arguments.CompressedStoragePath }
+                { Arguments.StoragePath, Arguments.CompressedStoragePath },
+                { Arguments.AliasBasedAddress, Arguments.AliasBasedAddress },
+                { Arguments.WriteStorageSuffix, Arguments.WriteStorageSuffix }
             };
 
             return CreateStorageFactoryImpl(arguments, names, verbose, compressed: true);
@@ -156,7 +160,9 @@ namespace Ng
                 { Arguments.StorageAccountName, Arguments.SemVer2StorageAccountName },
                 { Arguments.StorageKeyValue, Arguments.SemVer2StorageKeyValue },
                 { Arguments.StorageContainer, Arguments.SemVer2StorageContainer },
-                { Arguments.StoragePath, Arguments.SemVer2StoragePath }
+                { Arguments.StoragePath, Arguments.SemVer2StoragePath },
+                { Arguments.AliasBasedAddress, Arguments.AliasBasedAddress },
+                { Arguments.WriteStorageSuffix, Arguments.WriteStorageSuffix }
             };
 
             return CreateStorageFactoryImpl(arguments, names, verbose, compressed: true);
@@ -191,10 +197,15 @@ namespace Ng
             if (!string.IsNullOrEmpty(storageBaseAddressStr))
             {
                 storageBaseAddressStr = storageBaseAddressStr.TrimEnd('/') + "/";
-
                 storageBaseAddress = new Uri(storageBaseAddressStr);
             }
-
+            Uri aliasStorageBaseAddress = null;
+            var aliasStorageBaseAddressStr = arguments.GetOrDefault<string>(argumentNameMap[Arguments.AliasBasedAddress]);
+            if (!string.IsNullOrEmpty(aliasStorageBaseAddressStr))
+            {
+                aliasStorageBaseAddressStr = aliasStorageBaseAddressStr.TrimEnd('/') + "/";
+                aliasStorageBaseAddress = new Uri(aliasStorageBaseAddressStr);
+            }
             var storageType = arguments.GetOrThrow<string>(Arguments.StorageType);
 
             if (storageType.Equals(Arguments.FileStorageType, StringComparison.InvariantCultureIgnoreCase))
@@ -216,10 +227,14 @@ namespace Ng
                 var storageKeyValue = arguments.GetOrThrow<string>(argumentNameMap[Arguments.StorageKeyValue]);
                 var storageContainer = arguments.GetOrThrow<string>(argumentNameMap[Arguments.StorageContainer]);
                 var storagePath = arguments.GetOrDefault<string>(argumentNameMap[Arguments.StoragePath]);
-
+                var endpointSuffix = arguments.GetOrDefault<string>(argumentNameMap[Arguments.WriteStorageSuffix]);
+                
                 var credentials = new StorageCredentials(storageAccountName, storageKeyValue);
-                var account = new CloudStorageAccount(credentials, true);
-                return new AzureStorageFactory(account, storageContainer, storagePath, storageBaseAddress)
+                var account = endpointSuffix == null ? 
+                                new CloudStorageAccount(credentials, true) :
+                                new CloudStorageAccount(credentials, endpointSuffix,  true);
+
+                return new AzureStorageFactory(account, storageContainer, storagePath, storageBaseAddress, aliasStorageBaseAddress)
                             { Verbose = verbose, CompressContent = compressed };
             }
             

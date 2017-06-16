@@ -23,15 +23,19 @@ namespace NuGet.Services.Metadata.Catalog.Registration
         private readonly RecordingStorage _storage;
         private readonly Uri _registrationBaseAddress;
         private readonly Uri _contentBaseAddress;
+       // private readonly Uri _aliasRegistrationBaseAddress;
 
-        public RegistrationPersistence(StorageFactory storageFactory, RegistrationKey registrationKey, int partitionSize, int packageCountThreshold, Uri contentBaseAddress)
+        public RegistrationPersistence(StorageFactory storageFactory, RegistrationKey registrationKey,
+                                        int partitionSize, int packageCountThreshold,
+                                        Uri contentBaseAddress)
         {
             _storage = new RecordingStorage(storageFactory.Create(registrationKey.ToString()));
             _registrationUri = _storage.ResolveUri("index.json");
             _packageCountThreshold = packageCountThreshold;
             _partitionSize = partitionSize;
-            _registrationBaseAddress = storageFactory.BaseAddress;
+            _registrationBaseAddress = storageFactory.AliasBaseAddress ?? storageFactory.BaseAddress;
             _contentBaseAddress = contentBaseAddress;
+            //_aliasRegistrationBaseAddress = aliasRegistrationBaseAddress;
         }
 
         public Task<IDictionary<RegistrationEntryKey, RegistrationCatalogEntry>> Load(CancellationToken cancellationToken)
@@ -162,7 +166,9 @@ namespace NuGet.Services.Metadata.Catalog.Registration
         
         //  Save implementation
 
-        static async Task Save(IStorage storage, Uri registrationBaseAddress, IDictionary<RegistrationEntryKey, RegistrationCatalogEntry> registration, int partitionSize, int packageCountThreshold, Uri contentBaseAddress, CancellationToken cancellationToken)
+        static async Task Save(IStorage storage, Uri registrationBaseAddress, IDictionary<RegistrationEntryKey,
+                               RegistrationCatalogEntry> registration, int partitionSize, int packageCountThreshold,
+                               Uri contentBaseAddress, CancellationToken cancellationToken)
         {
             Trace.TraceInformation("RegistrationPersistence.Save");
 
@@ -183,7 +189,8 @@ namespace NuGet.Services.Metadata.Catalog.Registration
             }
         }
 
-        static async Task SaveSmallRegistration(IStorage storage, Uri registrationBaseAddress, IList<RegistrationCatalogEntry> items, int partitionSize, Uri contentBaseAddress, CancellationToken cancellationToken)
+        static async Task SaveSmallRegistration(IStorage storage, Uri registrationBaseAddress, IList<RegistrationCatalogEntry> items,
+                                                int partitionSize, Uri contentBaseAddress, CancellationToken cancellationToken)
         {
             Trace.TraceInformation("RegistrationPersistence.SaveSmallRegistration");
 
@@ -200,7 +207,8 @@ namespace NuGet.Services.Metadata.Catalog.Registration
             await storage.Save(graphPersistence.ResourceUri, content, cancellationToken);
         }
 
-        static async Task SaveLargeRegistration(IStorage storage, Uri registrationBaseAddress, IList<RegistrationCatalogEntry> items, int partitionSize, Uri contentBaseAddress, CancellationToken cancellationToken)
+        static async Task SaveLargeRegistration(IStorage storage, Uri registrationBaseAddress, IList<RegistrationCatalogEntry> items, 
+                                                int partitionSize, Uri contentBaseAddress, CancellationToken cancellationToken)
         {
             Trace.TraceInformation("RegistrationPersistence.SaveLargeRegistration: registrationBaseAddress = {0} items: {1}", registrationBaseAddress, items.Count);
 

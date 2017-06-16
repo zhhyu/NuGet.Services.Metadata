@@ -13,7 +13,7 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
         string _path;
         private Uri _differentBaseAddress = null;
 
-        public AzureStorageFactory(CloudStorageAccount account, string containerName, string path = null, Uri baseAddress = null)
+        public AzureStorageFactory(CloudStorageAccount account, string containerName, string path = null, Uri baseAddress = null, Uri aliasBaseAddress = null)
         {
             _account = account;
             _containerName = containerName;
@@ -25,7 +25,12 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
             }
 
             _differentBaseAddress = baseAddress;
+            BaseAddress = BuildAddress(account, containerName, path, baseAddress);
+            AliasBaseAddress = aliasBaseAddress == null ? BaseAddress : BuildAddress(account, containerName, path, aliasBaseAddress);
+        }
 
+        Uri BuildAddress(CloudStorageAccount account, string containerName, string path = null, Uri baseAddress = null)
+        {
             if (baseAddress == null)
             {
                 Uri blobEndpoint = new UriBuilder(account.BlobEndpoint)
@@ -34,7 +39,7 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
                     Port = 80
                 }.Uri;
 
-                BaseAddress = new Uri(blobEndpoint, containerName + "/" + _path ?? string.Empty);
+                return new Uri(blobEndpoint, containerName + "/" + _path ?? string.Empty);
             }
             else
             {
@@ -45,7 +50,7 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
                     newAddress = new Uri(baseAddress, path + "/");
                 }
 
-                BaseAddress = newAddress;
+                return newAddress;
             }
         }
 
@@ -64,7 +69,11 @@ namespace NuGet.Services.Metadata.Catalog.Persistence
                 newBase = new Uri(_differentBaseAddress, name + "/");
             }
 
-            return new AzureStorage(_account, _containerName, path, newBase) { Verbose = Verbose, CompressContent = CompressContent };
+            return new AzureStorage(_account, _containerName, path, newBase)
+            {   Verbose = Verbose,
+                CompressContent = CompressContent,
+                AliasBaseAddress = new Uri(newBase.AbsoluteUri.Replace(_differentBaseAddress.AbsoluteUri, AliasBaseAddress.AbsoluteUri))
+            };
         }
     }
 }
