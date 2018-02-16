@@ -359,6 +359,10 @@
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AzureDirectory\AzureDirectory.csproj">
+      <Project>{6d8758a7-f910-4ba0-b382-d535ca1ff958}</Project>
+      <Name>AzureDirectory</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NuGet.ApplicationInsights.Owin\NuGet.ApplicationInsights.Owin.csproj">
       <Project>{717E9A81-75C5-418E-92ED-18CAC55BC345}</Project>
       <Name>NuGet.ApplicationInsights.Owin</Name>
@@ -385,7 +389,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>24862</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

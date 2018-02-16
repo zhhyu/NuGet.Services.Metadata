@@ -96,9 +96,6 @@
       <HintPath>..\..\packages\Lucene.Net.Contrib.3.0.3\lib\net40\Lucene.Net.Contrib.SpellChecker.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Lucene.Net.Store.Azure, Version=3.0.6262.31186, Culture=neutral, PublicKeyToken=99038290aa5f5fad, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Lucene.Net.Store.Azure.StrongName.3.0.6262.31186\lib\net45\Lucene.Net.Store.Azure.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Azure.Common, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Azure.Common.2.0.4\lib\net45\Microsoft.Azure.Common.dll</HintPath>
       <Private>True</Private>
@@ -363,6 +360,12 @@
     <EmbeddedResource Include="Resources\Acronyms.json" />
     <None Include="SampleFiles\rankings.v1.json" />
     <None Include="SampleFiles\searchSettings.v1.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AzureDirectory\AzureDirectory.csproj">
+      <Project>{6d8758a7-f910-4ba0-b382-d535ca1ff958}</Project>
+      <Name>AzureDirectory</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
