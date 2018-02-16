@@ -7,6 +7,7 @@ using System.Linq;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using NuGet.Versioning;
+using LuceneMetadataConstants = NuGet.Indexing.MetadataConstants.LuceneMetadata;
 
 namespace NuGet.Indexing
 {
@@ -113,7 +114,7 @@ namespace NuGet.Indexing
 
         private static bool GetListed(Document document)
         {
-            string listed = document.Get("Listed");
+            string listed = document.Get(LuceneMetadataConstants.ListedPropertyName);
             return (listed == null) ? false : listed.Equals("true", StringComparison.InvariantCultureIgnoreCase);
         }
 

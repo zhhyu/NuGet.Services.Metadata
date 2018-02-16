@@ -21,7 +21,6 @@ namespace NuGet.Indexing
                 { LuceneConstants.IdAutocompletePropertyName, new IdentifierAutocompleteAnalyzer() },
                 { LuceneConstants.TokenizedIdPropertyName, new IdentifierAnalyzer() },
                 { LuceneConstants.ShingledIdPropertyName, new ShingledIdentifierAnalyzer() },
-                { LuceneConstants.NormalizedVersionPropertyName, new VersionAnalyzer(caseSensitive: true) },
                 { LuceneConstants.CaseInsensitiveNormalizedVersionPropertyName, new VersionAnalyzer(caseSensitive: false) },
                 { LuceneConstants.TitlePropertyName, new DescriptionAnalyzer() },
                 { LuceneConstants.DescriptionPropertyName, new DescriptionAnalyzer() },

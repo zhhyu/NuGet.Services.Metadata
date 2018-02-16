@@ -5,6 +5,7 @@ using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using NuGet.Versioning;
 using System.Collections.Generic;
+using LuceneMetadataConstants = NuGet.Indexing.MetadataConstants.LuceneMetadata;
 
 namespace NuGet.Indexing
 {
@@ -93,13 +94,13 @@ namespace NuGet.Indexing
 
         private static NuGetVersion GetVersion(Document document)
         {
-            string version = document.Get(MetadataConstants.LuceneMetadata.VerbatimVersionPropertyName);
+            string version = document.Get(LuceneMetadataConstants.VerbatimVersionPropertyName);
             return (version == null) ? null : new NuGetVersion(version);
         }
 
         private static string GetId(Document document)
         {
-            string id = document.Get("Id");
+            string id = document.Get(LuceneMetadataConstants.IdPropertyName);
             string ns = document.Get("Namespace");
             string fullname = (ns == null) ? id : string.Format("{0}/{1}", ns, id);
             return (fullname == null) ? null : fullname.ToLowerInvariant();

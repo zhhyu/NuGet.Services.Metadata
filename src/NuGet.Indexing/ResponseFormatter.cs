@@ -96,7 +96,7 @@ namespace NuGet.Indexing
 
                 jsonWriter.WriteStartObject();
 
-                string id = document.Get("Id");
+                string id = document.Get(LuceneMetadataConstants.IdPropertyName);
 
                 var relativeAddress = UriFormatter.MakeRegistrationRelativeAddress(id);
                 var absoluteAddress = new Uri(baseAddress, relativeAddress).AbsoluteUri;
@@ -108,14 +108,14 @@ namespace NuGet.Indexing
                 WriteProperty(jsonWriter, "id", id);
 
                 WriteDocumentValue(jsonWriter, "version", document, LuceneMetadataConstants.FullVersionPropertyName);
-                WriteDocumentValue(jsonWriter, "description", document, "Description");
-                WriteDocumentValue(jsonWriter, "summary", document, "Summary");
-                WriteDocumentValue(jsonWriter, "title", document, "Title");
-                WriteDocumentValue(jsonWriter, "iconUrl", document, "IconUrl");
-                WriteDocumentValue(jsonWriter, "licenseUrl", document, "LicenseUrl");
-                WriteDocumentValue(jsonWriter, "projectUrl", document, "ProjectUrl");
-                WriteDocumentValueAsArray(jsonWriter, "tags", document, "Tags");
-                WriteDocumentValueAsArray(jsonWriter, "authors", document, "Authors", true);
+                WriteDocumentValue(jsonWriter, "description", document, LuceneMetadataConstants.DescriptionPropertyName);
+                WriteDocumentValue(jsonWriter, "summary", document, LuceneMetadataConstants.SummaryPropertyName);
+                WriteDocumentValue(jsonWriter, "title", document, LuceneMetadataConstants.TitlePropertyName);
+                WriteDocumentValue(jsonWriter, "iconUrl", document, LuceneMetadataConstants.IconUrlPropertyName);
+                WriteDocumentValue(jsonWriter, "licenseUrl", document, LuceneMetadataConstants.LicenseUrlPropertyName);
+                WriteDocumentValue(jsonWriter, "projectUrl", document, LuceneMetadataConstants.ProjectUrlPropertyName);
+                WriteDocumentValueAsArray(jsonWriter, "tags", document, LuceneMetadataConstants.TagsPropertyName);
+                WriteDocumentValueAsArray(jsonWriter, "authors", document, LuceneMetadataConstants.AuthorsPropertyName, singleElement: true);
                 WriteProperty(jsonWriter, "totalDownloads", searcher.Versions[scoreDoc.Doc].AllVersionDetails.Select(item => item.Downloads).Sum());
                 WriteProperty(jsonWriter, "verified", searcher.VerifiedPackages.Contains(id));
                 WriteVersions(jsonWriter, baseAddress, id, includePrerelease, semVerLevel, searcher.Versions[scoreDoc.Doc]);
@@ -197,7 +197,7 @@ namespace NuGet.Indexing
             {
                 ScoreDoc scoreDoc = topDocs.ScoreDocs[i];
                 Document document = searcher.Doc(scoreDoc.Doc);
-                string id = document.Get("Id");
+                string id = document.Get(LuceneMetadataConstants.IdPropertyName);
                 jsonWriter.WriteValue(id);
             }
             jsonWriter.WriteEndArray();
@@ -319,7 +319,7 @@ namespace NuGet.Indexing
                 ScoreDoc scoreDoc = topDocs.ScoreDocs[i];
                 Document document = searcher.Doc(scoreDoc.Doc);
 
-                string id = document.Get("Id");
+                string id = document.Get(LuceneMetadataConstants.IdPropertyName);
                 string normalizedVersion = document.Get(LuceneMetadataConstants.NormalizedVersionPropertyName);
                 string fullVersion = document.Get(LuceneMetadataConstants.FullVersionPropertyName);
 
@@ -333,35 +333,35 @@ namespace NuGet.Indexing
                 WriteRegistrationV2(jsonWriter, id, downloadCounts.Item1, NuGetIndexSearcher.GetOwners(searcher, id), isVerified);
                 WriteDocumentValue(jsonWriter, "Version", document, LuceneMetadataConstants.VerbatimVersionPropertyName);
                 WriteProperty(jsonWriter, "NormalizedVersion", normalizedVersion);
-                WriteDocumentValue(jsonWriter, "Title", document, "Title");
-                WriteDocumentValue(jsonWriter, "Description", document, "Description");
-                WriteDocumentValue(jsonWriter, "Summary", document, "Summary");
-                WriteDocumentValue(jsonWriter, "Authors", document, "Authors");
-                WriteDocumentValue(jsonWriter, "Copyright", document, "Copyright");
-                WriteDocumentValue(jsonWriter, "Language", document, "Language");
-                WriteDocumentValue(jsonWriter, "Tags", document, "Tags");
-                WriteDocumentValue(jsonWriter, "ReleaseNotes", document, "ReleaseNotes");
-                WriteDocumentValue(jsonWriter, "ProjectUrl", document, "ProjectUrl");
-                WriteDocumentValue(jsonWriter, "IconUrl", document, "IconUrl");
+                WriteDocumentValue(jsonWriter, "Title", document, LuceneMetadataConstants.TitlePropertyName);
+                WriteDocumentValue(jsonWriter, "Description", document, LuceneMetadataConstants.DescriptionPropertyName);
+                WriteDocumentValue(jsonWriter, "Summary", document, LuceneMetadataConstants.SummaryPropertyName);
+                WriteDocumentValue(jsonWriter, "Authors", document, LuceneMetadataConstants.AuthorsPropertyName);
+                WriteDocumentValue(jsonWriter, "Copyright", document, LuceneMetadataConstants.CopyrightPropertyName);
+                WriteDocumentValue(jsonWriter, "Language", document, LuceneMetadataConstants.LanguagePropertyName);
+                WriteDocumentValue(jsonWriter, "Tags", document, LuceneMetadataConstants.TagsPropertyName);
+                WriteDocumentValue(jsonWriter, "ReleaseNotes", document, LuceneMetadataConstants.ReleaseNotesPropertyName);
+                WriteDocumentValue(jsonWriter, "ProjectUrl", document, LuceneMetadataConstants.ProjectUrlPropertyName);
+                WriteDocumentValue(jsonWriter, "IconUrl", document, LuceneMetadataConstants.IconUrlPropertyName);
                 WriteProperty(jsonWriter, "IsLatestStable", isLatestStable);
                 WriteProperty(jsonWriter, "IsLatest", isLatest);
-                WriteProperty(jsonWriter, "Listed", bool.Parse(document.Get("Listed") ?? "true"));
-                WriteDocumentValue(jsonWriter, "Created", document, "OriginalCreated");
-                WriteDocumentValue(jsonWriter, "Published", document, "OriginalPublished");
-                WriteDocumentValue(jsonWriter, "LastUpdated", document, "OriginalPublished");
-                WriteDocumentValue(jsonWriter, "LastEdited", document, "OriginalLastEdited");
+                WriteProperty(jsonWriter, "Listed", bool.Parse(document.Get(LuceneMetadataConstants.ListedPropertyName) ?? "true"));
+                WriteDocumentValue(jsonWriter, "Created", document, LuceneMetadataConstants.OriginalCreatedPropertyName);
+                WriteDocumentValue(jsonWriter, "Published", document, LuceneMetadataConstants.OriginalPublishedPropertyName);
+                WriteDocumentValue(jsonWriter, "LastUpdated", document, LuceneMetadataConstants.OriginalPublishedPropertyName);
+                WriteDocumentValue(jsonWriter, "LastEdited", document, LuceneMetadataConstants.OriginalLastEditedPropertyName);
                 WriteProperty(jsonWriter, "DownloadCount", downloadCounts.Item2);
-                WriteDocumentValue(jsonWriter, "FlattenedDependencies", document, "FlattenedDependencies");
+                WriteDocumentValue(jsonWriter, "FlattenedDependencies", document, LuceneMetadataConstants.FlattenedDependenciesPropertyName);
                 jsonWriter.WritePropertyName("Dependencies");
-                jsonWriter.WriteRawValue(document.Get("Dependencies") ?? "[]");
+                jsonWriter.WriteRawValue(document.Get(LuceneMetadataConstants.DependenciesPropertyName) ?? "[]");
                 jsonWriter.WritePropertyName("SupportedFrameworks");
-                jsonWriter.WriteRawValue(document.Get("SupportedFrameworks") ?? "[]");
-                WriteDocumentValue(jsonWriter, "MinClientVersion", document, "MinClientVersion");
-                WriteDocumentValue(jsonWriter, "Hash", document, "PackageHash");
-                WriteDocumentValue(jsonWriter, "HashAlgorithm", document, "PackageHashAlgorithm");
-                WriteProperty(jsonWriter, "PackageFileSize", int.Parse(document.Get("PackageSize") ?? "0"));
-                WriteDocumentValue(jsonWriter, "LicenseUrl", document, "LicenseUrl");
-                WriteProperty(jsonWriter, "RequiresLicenseAcceptance", bool.Parse(document.Get("RequiresLicenseAcceptance") ?? "false"));
+                jsonWriter.WriteRawValue(document.Get(LuceneMetadataConstants.SupportedFrameworksPropertyName) ?? "[]");
+                WriteDocumentValue(jsonWriter, "MinClientVersion", document, LuceneMetadataConstants.MinClientVersionPropertyName);
+                WriteDocumentValue(jsonWriter, "Hash", document, LuceneMetadataConstants.PackageHashPropertyName);
+                WriteDocumentValue(jsonWriter, "HashAlgorithm", document, LuceneMetadataConstants.PackageHashAlgorithmPropertyName);
+                WriteProperty(jsonWriter, "PackageFileSize", int.Parse(document.Get(LuceneMetadataConstants.PackageSizePropertyName) ?? "0"));
+                WriteDocumentValue(jsonWriter, "LicenseUrl", document, LuceneMetadataConstants.LicenseUrlPropertyName);
+                WriteProperty(jsonWriter, "RequiresLicenseAcceptance", bool.Parse(document.Get(LuceneMetadataConstants.RequiresLicenseAcceptancePropertyName) ?? "false"));
                 jsonWriter.WriteEndObject();
             }
 

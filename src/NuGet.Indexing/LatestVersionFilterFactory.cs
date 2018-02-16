@@ -8,6 +8,7 @@ using Lucene.Net.Util;
 using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
+using LuceneMetadataConstants = NuGet.Indexing.MetadataConstants.LuceneMetadata;
 
 namespace NuGet.Indexing
 {
@@ -111,19 +112,19 @@ namespace NuGet.Indexing
 
         static NuGetVersion GetVersion(Document document)
         {
-            string version = document.Get("Version");
+            string version = document.Get(LuceneMetadataConstants.NormalizedVersionPropertyName);
             return (version == null) ? null : new NuGetVersion(version);
         }
 
         static bool GetListed(Document document)
         {
-            string listed = document.Get("Listed");
+            string listed = document.Get(LuceneMetadataConstants.ListedPropertyName);
             return (listed == null) ? false : listed.Equals("true", StringComparison.InvariantCultureIgnoreCase);
         }
 
         static string GetId(Document document)
         {
-            string id = document.Get("Id");
+            string id = document.Get(LuceneMetadataConstants.IdPropertyName);
             string ns = document.Get("Namespace");
             string fullname = (ns == null) ? id : string.Format("{0}/{1}", ns, id);
             return (fullname == null) ? null : fullname.ToLowerInvariant();

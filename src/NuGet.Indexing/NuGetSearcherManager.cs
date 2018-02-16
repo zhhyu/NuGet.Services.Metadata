@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using NuGet.Indexing.IndexDirectoryProvider;
 using Directory = Lucene.Net.Store.Directory;
 using FrameworkLogger = Microsoft.Extensions.Logging.ILogger;
+using LuceneMetadataConstants = NuGet.Indexing.MetadataConstants.LuceneMetadata;
 
 namespace NuGet.Indexing
 {
@@ -358,10 +359,10 @@ namespace NuGet.Indexing
             searcher.Search(boostedQuery, 5);
 
             // Warmup search (with a sort so Lucene field caches are populated)
-            var sort1 = new Sort(new SortField("LastEditedDate", SortField.INT, reverse: true));
-            var sort2 = new Sort(new SortField("PublishedDate", SortField.INT, reverse: true));
-            var sort3 = new Sort(new SortField("SortableTitle", SortField.STRING, reverse: false));
-            var sort4 = new Sort(new SortField("SortableTitle", SortField.STRING, reverse: true));
+            var sort1 = new Sort(new SortField(LuceneMetadataConstants.LastEditedDatePropertyName, SortField.INT, reverse: true));
+            var sort2 = new Sort(new SortField(LuceneMetadataConstants.PublishedDatePropertyName, SortField.INT, reverse: true));
+            var sort3 = new Sort(new SortField(LuceneMetadataConstants.SortableTitlePropertyName, SortField.STRING, reverse: false));
+            var sort4 = new Sort(new SortField(LuceneMetadataConstants.SortableTitlePropertyName, SortField.STRING, reverse: true));
 
             var topDocs1 = searcher.Search(boostedQuery, null, 250, sort1);
             var topDocs2 = searcher.Search(boostedQuery, null, 250, sort2);
