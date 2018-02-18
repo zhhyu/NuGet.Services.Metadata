@@ -103,6 +103,56 @@ namespace NuGet.Services.BasicSearchTests
         }
 
         [Fact]
+        public async Task ReturnsIdWithOriginalCase()
+        {
+            // Arrange
+            var packages = new[]
+            {
+                new PackageVersion("Newtonsoft.Json", "7.0.1"),
+            };
+
+            using (var app = await StartedWebApp.StartAsync(packages))
+            {
+                // Act
+                var response = await app.Client.GetAsync(new V3SearchBuilder
+                {
+                    Query = "packageid:Newtonsoft.Json",
+                    Prerelease = true,
+                }.RequestUri);
+                var result = await response.Content.ReadAsAsync<V3SearchResult>();
+
+                // Assert
+                Assert.Equal("Newtonsoft.Json", result.Data[0].Id);
+                Assert.Equal("7.0.1", result.Data[0].Version);
+            }
+        }
+
+        [Fact]
+        public async Task ReturnsVersionsWithOriginalCase()
+        {
+            // Arrange
+            var packages = new[]
+            {
+                new PackageVersion("angularjs", "1.2.0-RC1"),
+            };
+
+            using (var app = await StartedWebApp.StartAsync(packages))
+            {
+                // Act
+                var response = await app.Client.GetAsync(new V3SearchBuilder
+                {
+                    Query = "packageid:angularjs",
+                    Prerelease = true,
+                }.RequestUri);
+                var result = await response.Content.ReadAsAsync<V3SearchResult>();
+
+                // Assert
+                Assert.Equal("angularjs", result.Data[0].Id);
+                Assert.Equal("1.2.0-RC1", result.Data[0].Version);
+            }
+        }
+
+        [Fact]
         public async Task SortsResultsByDownload()
         {
             // Arrange

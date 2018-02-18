@@ -174,7 +174,6 @@ namespace NuGet.IndexingTests
                 new KeyValuePair<string, string>(LuceneConstants.ShingledIdPropertyName, "DotNetZip"),
                 new KeyValuePair<string, string>(LuceneConstants.VerbatimVersionPropertyName, "1.00.000-ALPHA+GIT"),
                 new KeyValuePair<string, string>(LuceneConstants.NormalizedVersionPropertyName, "1.0.0-ALPHA"),
-                new KeyValuePair<string, string>(LuceneConstants.CaseInsensitiveNormalizedVersionPropertyName, "1.0.0-ALPHA"),
                 new KeyValuePair<string, string>(LuceneConstants.FullVersionPropertyName, "1.0.0-ALPHA+GIT"),
                 new KeyValuePair<string, string>(LuceneConstants.TitlePropertyName, "The Famous DotNetZip"),
                 new KeyValuePair<string, string>(LuceneConstants.DescriptionPropertyName, "The description."),

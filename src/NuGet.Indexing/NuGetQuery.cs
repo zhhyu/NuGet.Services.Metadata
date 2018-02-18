@@ -169,7 +169,7 @@ namespace NuGet.Indexing
             query.Add(
                 ConstructClauseQuery(
                     analyzer,
-                    LuceneConstants.CaseInsensitiveNormalizedVersionPropertyName,
+                    LuceneConstants.NormalizedVersionPropertyName,
                     values),
                 occur);
         }
