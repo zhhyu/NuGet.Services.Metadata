@@ -66,9 +66,12 @@ namespace NuGet.Indexing
         public const string CopyrightPropertyName = "copyright";
         public const string CreatedPropertyName = "created";
         public const string DescriptionPropertyName = "description";
+        public const string DownloadCountPropertyName = "downloadCount";
+        public const string TotalDownloadCountPropertyName = "totalDownloadCount";
         public const string FlattenedDependenciesPropertyName = "flattenedDependencies";
         public const string IconUrlPropertyName = "iconUrl";
         public const string IdPropertyName = "id";
+        public const string KeyPropertyName = "key";
         public const string LanguagePropertyName = "language";
         public const string LastEditedPropertyName = "lastEdited";
         public const string LicenseUrlPropertyName = "licenseUrl";
@@ -85,6 +88,7 @@ namespace NuGet.Indexing
         public const string SemVerLevelKeyPropertyName = "semVerLevelKey";
         public const string SummaryPropertyName = "summary";
         public const string SupportedFrameworksPropertyName = "supportedFrameworks";
+        public const string VerifiedPropertyName = "isVerified";
         public const string TagsPropertyName = "tags";
         public const string TitlePropertyName = "title";
         public const string VerbatimVersionPropertyName = "verbatimVersion";
