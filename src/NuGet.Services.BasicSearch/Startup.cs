@@ -359,6 +359,12 @@ namespace NuGet.Services.BasicSearch
                         case "/search/diag":
                             await ServiceEndpoints.Stats(context, _searcherManager, _responseWriter);
                             break;
+                        case "/test/enable-index-reload":
+                            _gate = 0;
+                            break;
+                        case "/test/disable-index-reload":
+                            _gate = 1;
+                            break;
                         default:
                             context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                             await context.Response.WriteAsync("UNRECOGNIZED");
