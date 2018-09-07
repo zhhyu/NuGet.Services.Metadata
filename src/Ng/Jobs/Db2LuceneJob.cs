@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Search;
-using Microsoft.Azure.Search.Models;
 using Microsoft.Extensions.Logging;
 using NuGet.Indexing;
 using NuGet.Services.Configuration;
@@ -17,10 +15,9 @@ namespace Ng.Jobs
     public class Db2LuceneJob : NgJob
     {
         private string _connectionString;
-        private string _searchAccountName;
-        private string _searchApiKey;
-        private string _indexName;
-        private bool _createIndex;
+        private string _path;
+        private string _source;
+        private Uri _catalogIndexUrl;
 
         public Db2LuceneJob(ITelemetryService telemetryService, ILoggerFactory loggerFactory) : base(telemetryService, loggerFactory)
         {
@@ -30,49 +27,25 @@ namespace Ng.Jobs
         {
             return "Usage: ng db2lucene "
                    + $"-{Arguments.ConnectionString} <connectionString> "
-                   + $"-{Arguments.SearchAccountName} <searchAccountName> "
-                   + $"-{Arguments.SearchApiKey} <searchApiKey> "
-                   + $"-{Arguments.IndexName} <searchIndex> "
-                   + $"[-{Arguments.CreateIndex} true|false]"
+                   + $"-{Arguments.Source} <catalogSource>"
+                   + $"-{Arguments.Path} <folder> "
                    + $"[-{Arguments.Verbose} true|false]";
         }
 
         protected override void Init(IDictionary<string, string> arguments, CancellationToken cancellationToken)
         {
             _connectionString = arguments.GetOrThrow<string>(Arguments.ConnectionString);
-            _searchAccountName = arguments.GetOrThrow<string>(Arguments.SearchAccountName);
-            _searchApiKey = arguments.GetOrThrow<string>(Arguments.SearchApiKey);
-            _indexName = arguments.GetOrThrow<string>(Arguments.IndexName);
-            _createIndex = false;
+            _source = arguments.GetOrThrow<string>(Arguments.Source);
+            _path = arguments.GetOrThrow<string>(Arguments.Path);
 
-            if (arguments.TryGetValue(Arguments.CreateIndex, out string createIndexString))
-            {
-                if (bool.TryParse(createIndexString, out bool createIndex))
-                {
-                    _createIndex = createIndex;
-                }
-            }
+            _catalogIndexUrl = new Uri(_source);
         }
         
-        protected async override Task RunInternal(CancellationToken cancellationToken)
+        protected override Task RunInternal(CancellationToken cancellationToken)
         {
-            var searchCredentials = new SearchCredentials(_searchApiKey);
-            var searchClient = new SearchServiceClient(_searchAccountName, searchCredentials);
+            Sql2Lucene.Export(_connectionString, _catalogIndexUrl, _path, LoggerFactory);
 
-            if (_createIndex)
-            {
-                Logger.LogInformation("Creating index {Name}...", _indexName);
-
-                await searchClient.Indexes.CreateAsync(new Index
-                {
-                    Name = _indexName,
-                    Fields = FieldBuilder.BuildForType<PackageDocument>()
-                });
-
-                Logger.LogInformation("Created index {Name}", _indexName);
-            }
-
-            Sql2Lucene.Export(_connectionString, searchClient, _indexName, LoggerFactory);
+            return Task.FromResult(false);
         }
     }
 }

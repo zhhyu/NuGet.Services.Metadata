@@ -28,8 +28,6 @@ namespace NuGet.Indexing
             }
         }
 
-        public IDictionary<string, int> All => _downloadsByVersion;
-
         public int this[string version]
         {
             get
