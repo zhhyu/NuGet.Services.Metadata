@@ -44,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V3PerPackage", "src\V3PerPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.AzureSearch", "src\NuGet.AzureSearch\NuGet.AzureSearch.csproj", "{427C0131-FFA3-4E2F-8CAF-44239AE25937}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.AzureSearch.Tests", "tests\NuGet.AzureSearch.Tests\NuGet.AzureSearch.Tests.csproj", "{F523A3B9-73B5-44FE-95ED-3722715695B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -216,6 +218,18 @@ Global
 		{427C0131-FFA3-4E2F-8CAF-44239AE25937}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{427C0131-FFA3-4E2F-8CAF-44239AE25937}.Release|x64.ActiveCfg = Release|Any CPU
 		{427C0131-FFA3-4E2F-8CAF-44239AE25937}.Release|x64.Build.0 = Release|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Debug|x64.Build.0 = Debug|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Release|x64.ActiveCfg = Release|Any CPU
+		{F523A3B9-73B5-44FE-95ED-3722715695B7}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -235,6 +249,7 @@ Global
 		{34AABA7F-1FF7-4F4B-B1DB-D07AD4505DA4} = {F1C83FD9-A498-483E-ADFA-B55D82A14965}
 		{E76E73FA-4462-4F07-94C0-8B9CC413F696} = {C86C6DEE-84E1-4E4E-8868-6755D7A8E0E4}
 		{427C0131-FFA3-4E2F-8CAF-44239AE25937} = {5DE01C58-D5F7-482F-8256-A8333064384C}
+		{F523A3B9-73B5-44FE-95ED-3722715695B7} = {F1C83FD9-A498-483E-ADFA-B55D82A14965}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D3AB83E9-02B4-4FFA-A2D0-637F0B97E626}
