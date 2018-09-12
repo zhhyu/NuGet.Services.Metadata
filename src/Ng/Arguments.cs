@@ -174,5 +174,11 @@ namespace Ng
         public const string IndexFile = "indexFile";
         public const string CursorFile = "cursorFile";
         #endregion
+
+        #region Db2AzureSearch
+        public const string SearchService = "searchService";
+        public const string SearchServiceName = "searchIndexName";
+        public const string SearchApiKey = "searchApiKey";
+        #endregion
     }
 }

@@ -332,6 +332,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments.cs" />
+    <Compile Include="Jobs\Db2AzureSearchJob.cs" />
     <Compile Include="Telemetry\JobNameTelemetryInitializer.cs" />
     <Compile Include="Jobs\Catalog2DnxJob.cs" />
     <Compile Include="Jobs\Catalog2LuceneJob.cs" />
@@ -380,6 +381,10 @@
     <ProjectReference Include="..\Catalog\NuGet.Services.Metadata.Catalog.csproj">
       <Project>{e97f23b8-ecb0-4afa-b00c-015c39395fef}</Project>
       <Name>NuGet.Services.Metadata.Catalog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NuGet.AzureSearch\NuGet.AzureSearch.csproj">
+      <Project>{427C0131-FFA3-4E2F-8CAF-44239AE25937}</Project>
+      <Name>NuGet.AzureSearch</Name>
     </ProjectReference>
     <ProjectReference Include="..\NuGet.Indexing\NuGet.Indexing.csproj">
       <Project>{ddb34145-870f-42c3-9663-a9390cee1e35}</Project>

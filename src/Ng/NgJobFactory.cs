@@ -21,6 +21,7 @@ namespace Ng
             { "copylucene", typeof(CopyLuceneJob) },
             { "checklucene", typeof(CheckLuceneJob) },
             { "clearlucene", typeof(ClearLuceneJob) },
+            { "db2azuresearch", typeof(Db2AzureSearchJob) },
             { "db2lucene", typeof(Db2LuceneJob) },
             { "lightning", typeof(LightningJob) },
             { "catalog2monitoring", typeof(Catalog2MonitoringJob) },
