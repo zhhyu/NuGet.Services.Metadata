@@ -201,6 +201,9 @@
   </PropertyGroup>
   <Import Project="$(SignPath)\sign.targets" Condition="Exists('$(SignPath)\sign.targets')" />
   <Import Project="$(SignPath)\sign.microbuild.targets" Condition="Exists('$(SignPath)\sign.microbuild.targets')" />
+  <ItemGroup>
+    <SignFilesDependsOn Include="EnumerateFilesToSign" />
+  </ItemGroup>
   <Target Name="EnumerateFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
     <ItemGroup>
       <FilesToSign Include="$(MSBuildProjectDirectory)\Scripts\*.ps1">
