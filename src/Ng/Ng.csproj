@@ -205,8 +205,11 @@
     <SignFilesDependsOn Include="EnumerateFilesToSign" />
   </ItemGroup>
   <Target Name="EnumerateFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
+    <ItemGroup>
+      <UnsignedPowerShellScripts Include="$(MSBuildProjectDirectory)\Scripts\*.ps1"/>
+    </ItemGroup>
     <Copy
-      SourceFiles="$(MSBuildProjectDirectory)\Scripts\*.ps1"
+      SourceFiles="@(UnsignedPowerShellScripts)"
       DestinationFolder="$(OutDir)"
     />
     <ItemGroup>
@@ -214,8 +217,11 @@
         <Authenticode>Microsoft400</Authenticode>
       </FilesToSign>
     </ItemGroup>
+    <ItemGroup>
+      <SignedPowerShellScripts Include="$(OutDir)\Scripts\*.ps1"/>
+    </ItemGroup>
     <Copy
-      SourceFiles="$(OutDir)\Scripts\*.ps1"
+      SourceFiles="@(SignedPowerShellScripts)"
       DestinationFolder="$(MSBuildProjectDirectory)"
     />
     <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
