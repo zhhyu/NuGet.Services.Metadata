@@ -214,8 +214,8 @@
       <ExecutablesToSign Include="nssm.exe"/>
     </ItemGroup>
     <ItemGroup>
-      <ScriptsToSign Include="@(PowerShellScriptsToSign)">
-      <ScriptsToSign Include="@(ExecutablesToSign)">
+      <ScriptsToSign Include="@(PowerShellScriptsToSign)"/>
+      <ScriptsToSign Include="@(ExecutablesToSign)"/>
     </ItemGroup>
     <Copy
       SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ScriptsToSign.Identity)"
@@ -231,7 +231,7 @@
       SourceFiles="$(OutDir)\%(ScriptsToSign.Identity)"
       DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
     />
-    <Delete Files="$(OutDir)\%(ScriptsToSign.Identity)">
+    <Delete Files="$(OutDir)\%(ScriptsToSign.Identity)"/>
     <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
   </Target>
 </Project>
