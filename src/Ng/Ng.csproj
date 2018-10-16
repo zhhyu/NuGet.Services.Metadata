@@ -201,6 +201,7 @@
   </PropertyGroup>
   <Import Project="$(SignPath)\sign.targets" Condition="Exists('$(SignPath)\sign.targets')" />
   <Import Project="$(SignPath)\sign.microbuild.targets" Condition="Exists('$(SignPath)\sign.microbuild.targets')" />
+  <Import Project="..\..\sign.thirdparty.targets" />
   <ItemGroup>
     <SignFilesDependsOn Include="EnumerateScriptFilesToSign" />
   </ItemGroup>
@@ -224,6 +225,7 @@
     <ItemGroup>
       <FilesToSign Include="$(OutDir)%(PowerShellScriptsToSign.Identity)">
         <Authenticode>Microsoft400</Authenticode>
+        <StrongName>MsSharedLib72</StrongName>
       </FilesToSign>
       <FilesToSign Include="$(OutDir)%(ExecutablesToSign.Identity)">
         <Authenticode>3PartySHA2</Authenticode>
