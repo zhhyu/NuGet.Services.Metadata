@@ -218,22 +218,24 @@
       <ScriptsToSign Include="@(ExecutablesToSign)"/>
     </ItemGroup>
     <Copy
-      SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ScriptsToSign.Identity)"
+      SourceFiles="$(MSBuildProjectDirectory)\Scripts\@(ScriptsToSign.Identity)"
       DestinationFolder="$(OutDir)"
     />
     <ItemGroup>
-      <FilesToSign Include="$(OutDir)\%(PowerShellScriptsToSign.Identity)">
+      <FilesToSign Include="$(OutDir)%(PowerShellScriptsToSign.Identity)">
         <Authenticode>Microsoft400</Authenticode>
       </FilesToSign>
-      <FilesToSign Include="$(OutDir)\%(ExecutablesToSign.Identity)">
+      <FilesToSign Include="$(OutDir)%(ExecutablesToSign.Identity)">
         <Authenticode>3PartySHA2</Authenticode>
       </FilesToSign>
     </ItemGroup>
+    <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
+  </Target>
+  <Target Name="CleanUpFilesToSign" AfterTargets="SignFiles" Condition="'$(SignType)' != 'none'">
     <Copy
-      SourceFiles="$(OutDir)\%(ScriptsToSign.Identity)"
+      SourceFiles="$(OutDir)%(ScriptsToSign.Identity)"
       DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
     />
-    <Delete Files="$(OutDir)\%(ScriptsToSign.Identity)"/>
-    <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
+    <Delete Files="$(OutDir)%(ScriptsToSign.Identity)"/>
   </Target>
 </Project>
