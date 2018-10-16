@@ -225,7 +225,6 @@
     <ItemGroup>
       <FilesToSign Include="$(OutDir)%(PowerShellScriptsToSign.Identity)">
         <Authenticode>Microsoft400</Authenticode>
-        <StrongName>MsSharedLib72</StrongName>
       </FilesToSign>
       <FilesToSign Include="$(OutDir)%(ExecutablesToSign.Identity)">
         <Authenticode>3PartySHA2</Authenticode>
