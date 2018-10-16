@@ -32,7 +32,7 @@
             <ThirdPartyBinaries Include="VDS.Common.dll" />
         </ItemGroup>
         <ItemGroup>
-            <FilesToSign Include="@(ThirdPartyBinaries)" Condition="Exists('$(OutDir)%(ThirdPartyBinaries.Identity)')">
+            <FilesToSign Include="$(OutDir)%(ThirdPartyBinaries.Identity)" Condition="Exists('$(OutDir)%(ThirdPartyBinaries.Identity)')">
                 <Authenticode>3PartySHA2</Authenticode>
             </FilesToSign>
         </ItemGroup>
