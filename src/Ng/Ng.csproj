@@ -202,9 +202,9 @@
   <Import Project="$(SignPath)\sign.targets" Condition="Exists('$(SignPath)\sign.targets')" />
   <Import Project="$(SignPath)\sign.microbuild.targets" Condition="Exists('$(SignPath)\sign.microbuild.targets')" />
   <ItemGroup>
-    <SignFilesDependsOn Include="EnumerateFilesToSign" />
+    <SignFilesDependsOn Include="EnumerateScriptFilesToSign" />
   </ItemGroup>
-  <Target Name="EnumerateFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
+  <Target Name="EnumerateScriptFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
     <ItemGroup>
       <PowerShellScriptsToSign Include="Functions.ps1"/>
       <PowerShellScriptsToSign Include="PostDeploy.ps1"/>
