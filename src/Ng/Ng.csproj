@@ -206,9 +206,17 @@
   </ItemGroup>
   <Target Name="EnumerateFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
     <ItemGroup>
-      <FilesToSign Include="$(MSBuildProjectDirectory)\Scripts\*.ps1">
+      <Copy
+        SourceFiles="$(MSBuildProjectDirectory)\Scripts\*.ps1"
+        DestinationFolder="$(OutDir)"
+      />
+      <FilesToSign Include="$(OutDir)\*.ps1">
         <Authenticode>Microsoft400</Authenticode>
       </FilesToSign>
+      <Copy
+        SourceFiles="$(OutDir)\Scripts\*.ps1"
+        DestinationFolder="$(MSBuildProjectDirectory)"
+      />
     </ItemGroup>
     <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
   </Target>
