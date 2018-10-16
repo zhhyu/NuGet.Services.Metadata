@@ -197,9 +197,6 @@
     <EmbeddedResource Include="sparql\ConstructPackagePageContentGraph.rq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="content\further.js" />
-    <Content Include="content\jsonld.js" />
-    <Content Include="content\Promise.js" />
     <EmbeddedResource Include="Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
