@@ -201,42 +201,6 @@
   </PropertyGroup>
   <Import Project="$(SignPath)\sign.targets" Condition="Exists('$(SignPath)\sign.targets')" />
   <Import Project="$(SignPath)\sign.microbuild.targets" Condition="Exists('$(SignPath)\sign.microbuild.targets')" />
+  <Import Project="$(SignPath)\sign.scripts.targets" Condition="Exists('$(SignPath)\sign.scripts.targets')" />
   <Import Project="..\..\sign.thirdparty.targets" />
-  <ItemGroup>
-    <SignFilesDependsOn Include="EnumerateScriptFilesToSign" />
-  </ItemGroup>
-  <Target Name="EnumerateScriptFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
-    <ItemGroup>
-      <PowerShellScriptsToSign Include="Functions.ps1"/>
-      <PowerShellScriptsToSign Include="PostDeploy.ps1"/>
-      <PowerShellScriptsToSign Include="PreDeploy.ps1"/>
-    </ItemGroup>
-    <ItemGroup>
-      <ExecutablesToSign Include="nssm.exe"/>
-    </ItemGroup>
-    <ItemGroup>
-      <ScriptsToSign Include="@(PowerShellScriptsToSign)"/>
-      <ScriptsToSign Include="@(ExecutablesToSign)"/>
-    </ItemGroup>
-    <Copy
-      SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ScriptsToSign.Identity)"
-      DestinationFolder="$(OutDir)"
-    />
-    <ItemGroup>
-      <FilesToSign Include="$(OutDir)%(PowerShellScriptsToSign.Identity)">
-        <Authenticode>Microsoft400</Authenticode>
-      </FilesToSign>
-      <FilesToSign Include="$(OutDir)%(ExecutablesToSign.Identity)">
-        <Authenticode>3PartySHA2</Authenticode>
-      </FilesToSign>
-    </ItemGroup>
-    <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
-  </Target>
-  <Target Name="CleanUpFilesToSign" AfterTargets="SignFiles" Condition="'$(SignType)' != 'none'">
-    <Copy
-      SourceFiles="$(OutDir)%(ScriptsToSign.Identity)"
-      DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
-    />
-    <Delete Files="$(OutDir)%(ScriptsToSign.Identity)"/>
-  </Target>
 </Project>
