@@ -206,24 +206,39 @@
   </ItemGroup>
   <Target Name="EnumerateFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
     <ItemGroup>
-      <UnsignedPowerShellScripts Include="$(MSBuildProjectDirectory)\Scripts\*.ps1"/>
+      <ScriptsToSign Include="Functions.ps1"/>
+      <ScriptsToSign Include="PostDeploy.ps1"/>
+      <ScriptsToSign Include="PreDeploy.ps1"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ExecutablesToSign Include="nssm.exe"/>
     </ItemGroup>
     <Copy
-      SourceFiles="@(UnsignedPowerShellScripts)"
+      SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ScriptsToSign.Identity)"
+      DestinationFolder="$(OutDir)"
+    />
+    <Copy
+      SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ExecutablesToSign.Identity)"
       DestinationFolder="$(OutDir)"
     />
     <ItemGroup>
-      <FilesToSign Include="$(OutDir)\*.ps1">
+      <FilesToSign Include="$(OutDir)\%(ScriptsToSign.Identity)">
         <Authenticode>Microsoft400</Authenticode>
       </FilesToSign>
-    </ItemGroup>
-    <ItemGroup>
-      <SignedPowerShellScripts Include="$(OutDir)\Scripts\*.ps1"/>
+      <FilesToSign Include="$(OutDir)\%(ExecutablesToSign.Identity)">
+        <Authenticode>3PartySHA2</Authenticode>
+      </FilesToSign>
     </ItemGroup>
     <Copy
-      SourceFiles="@(SignedPowerShellScripts)"
-      DestinationFolder="$(MSBuildProjectDirectory)"
+      SourceFiles="$(OutDir)\%(ScriptsToSign.Identity)"
+      DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
     />
+    <Copy
+      SourceFiles="$(OutDir)\%(ExecutablesToSign.Identity)"
+      DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
+    />
+    <Delete Files="$(OutDir)\%(ScriptsToSign.Identity)">
+    <Delete Files="$(OutDir)\%(ExecutablesToSign.Identity)">
     <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
   </Target>
 </Project>
