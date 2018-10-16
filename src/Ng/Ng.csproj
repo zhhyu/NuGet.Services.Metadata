@@ -218,7 +218,7 @@
       <ScriptsToSign Include="@(ExecutablesToSign)"/>
     </ItemGroup>
     <Copy
-      SourceFiles="$(MSBuildProjectDirectory)\Scripts\@(ScriptsToSign.Identity)"
+      SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ScriptsToSign.Identity)"
       DestinationFolder="$(OutDir)"
     />
     <ItemGroup>
