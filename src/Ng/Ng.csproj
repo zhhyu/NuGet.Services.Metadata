@@ -221,12 +221,14 @@
       SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ScriptsToSign.Identity)"
       DestinationFolder="$(OutDir)"
     />
-    <FilesToSign Include="$(OutDir)\%(PowerShellScriptsToSign.Identity)">
-      <Authenticode>Microsoft400</Authenticode>
-    </FilesToSign>
-    <FilesToSign Include="$(OutDir)\%(ExecutablesToSign.Identity)">
-      <Authenticode>3PartySHA2</Authenticode>
-    </FilesToSign>
+    <ItemGroup>
+      <FilesToSign Include="$(OutDir)\%(PowerShellScriptsToSign.Identity)">
+        <Authenticode>Microsoft400</Authenticode>
+      </FilesToSign>
+      <FilesToSign Include="$(OutDir)\%(ExecutablesToSign.Identity)">
+        <Authenticode>3PartySHA2</Authenticode>
+      </FilesToSign>
+    </ItemGroup>
     <Copy
       SourceFiles="$(OutDir)\%(ScriptsToSign.Identity)"
       DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
