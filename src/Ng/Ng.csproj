@@ -206,39 +206,32 @@
   </ItemGroup>
   <Target Name="EnumerateFilesToSign" AfterTargets="AfterBuild" Condition="'$(SignType)' != 'none'">
     <ItemGroup>
-      <ScriptsToSign Include="Functions.ps1"/>
-      <ScriptsToSign Include="PostDeploy.ps1"/>
-      <ScriptsToSign Include="PreDeploy.ps1"/>
+      <PowerShellScriptsToSign Include="Functions.ps1"/>
+      <PowerShellScriptsToSign Include="PostDeploy.ps1"/>
+      <PowerShellScriptsToSign Include="PreDeploy.ps1"/>
     </ItemGroup>
     <ItemGroup>
       <ExecutablesToSign Include="nssm.exe"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ScriptsToSign Include="@(PowerShellScriptsToSign)">
+      <ScriptsToSign Include="@(ExecutablesToSign)">
     </ItemGroup>
     <Copy
       SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ScriptsToSign.Identity)"
       DestinationFolder="$(OutDir)"
     />
-    <Copy
-      SourceFiles="$(MSBuildProjectDirectory)\Scripts\%(ExecutablesToSign.Identity)"
-      DestinationFolder="$(OutDir)"
-    />
-    <ItemGroup>
-      <FilesToSign Include="$(OutDir)\%(ScriptsToSign.Identity)">
-        <Authenticode>Microsoft400</Authenticode>
-      </FilesToSign>
-      <FilesToSign Include="$(OutDir)\%(ExecutablesToSign.Identity)">
-        <Authenticode>3PartySHA2</Authenticode>
-      </FilesToSign>
-    </ItemGroup>
+    <FilesToSign Include="$(OutDir)\%(PowerShellScriptsToSign.Identity)">
+      <Authenticode>Microsoft400</Authenticode>
+    </FilesToSign>
+    <FilesToSign Include="$(OutDir)\%(ExecutablesToSign.Identity)">
+      <Authenticode>3PartySHA2</Authenticode>
+    </FilesToSign>
     <Copy
       SourceFiles="$(OutDir)\%(ScriptsToSign.Identity)"
       DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
     />
-    <Copy
-      SourceFiles="$(OutDir)\%(ExecutablesToSign.Identity)"
-      DestinationFolder="$(MSBuildProjectDirectory)\Scripts"
-    />
     <Delete Files="$(OutDir)\%(ScriptsToSign.Identity)">
-    <Delete Files="$(OutDir)\%(ExecutablesToSign.Identity)">
     <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
   </Target>
 </Project>
