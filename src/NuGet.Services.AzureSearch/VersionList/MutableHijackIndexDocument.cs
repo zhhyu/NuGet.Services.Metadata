@@ -125,6 +125,17 @@ namespace NuGet.Services.AzureSearch
             }
         }
 
+        public HijackIndexDocument Solidify()
+        {
+            return new HijackIndexDocument(
+                Delete ?? false,
+                UpdateMetadata ?? false,
+                LatestStableSemVer1 ?? false,
+                LatestSemVer1 ?? false,
+                LatestStableSemVer2 ?? false,
+                LatestSemVer2 ?? false);
+        }
+
         public override bool Equals(object obj)
         {
             return Equals(obj as MutableHijackIndexDocument);
@@ -142,6 +153,21 @@ namespace NuGet.Services.AzureSearch
                    EqualityComparer<bool?>.Default.Equals(LatestSemVer1, document.LatestSemVer1) &&
                    EqualityComparer<bool?>.Default.Equals(LatestStableSemVer2, document.LatestStableSemVer2) &&
                    EqualityComparer<bool?>.Default.Equals(LatestSemVer2, document.LatestSemVer2);
+        }
+
+        public static bool operator ==(MutableHijackIndexDocument a, MutableHijackIndexDocument b)
+        {
+            if (ReferenceEquals(a, null))
+            {
+                return ReferenceEquals(b, null);
+            }
+
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(MutableHijackIndexDocument a, MutableHijackIndexDocument b)
+        {
+            return !(a == b);
         }
 
         /// <summary>

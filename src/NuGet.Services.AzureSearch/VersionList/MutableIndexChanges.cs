@@ -190,6 +190,24 @@ namespace NuGet.Services.AzureSearch
             }
         }
 
+        public IndexChanges Solidify()
+        {
+            // Verify that the running list of hijack changes is the same as the pre-computed hijack document.
+            Guard.Assert(HijackDocuments.Count == HijackDocuments.Count, "The hijack document state has diverged.");
+            foreach (var pair in HijackChanges)
+            {
+                var expected = InitializeHijackIndexDocument(pair.Value);
+                var actual = HijackDocuments[pair.Key];
+                Guard.Assert(
+                    expected == actual,
+                    $"The hijack document for {pair.Key.ToFullString()} is different than the list of index changes.");
+            }
+
+            return new IndexChanges(
+                Search.ToDictionary(x => x.Key, x => x.Value),
+                HijackDocuments.ToDictionary(x => x.Key, x => x.Value.Solidify()));
+        }
+
         private class StateTransition : IEquatable<StateTransition>
         {
             public StateTransition(SICT existing, SICT added)

@@ -38,6 +38,8 @@
     <Compile Include="VersionList\Guard.cs" />
     <Compile Include="VersionList\HijackIndexChange.cs" />
     <Compile Include="VersionList\HijackIndexChangeType.cs" />
+    <Compile Include="VersionList\HijackIndexDocument.cs" />
+    <Compile Include="VersionList\IndexChanges.cs" />
     <Compile Include="VersionList\LatestIndexChanges.cs" />
     <Compile Include="VersionList\KeyValuePair.cs" />
     <Compile Include="VersionList\MutableHijackIndexDocument.cs" />
