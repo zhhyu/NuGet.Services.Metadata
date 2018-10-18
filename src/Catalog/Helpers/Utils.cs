@@ -67,14 +67,7 @@ namespace NuGet.Services.Metadata.Catalog
 
         public static IGraph CreateNuspecGraph(XDocument nuspec, string baseAddress, bool normalizeXml = false)
         {
-            XsltArgumentList arguments = new XsltArgumentList();
-            arguments.AddParam("base", "", baseAddress);
-            arguments.AddParam("extension", "", ".json");
-
-            arguments.AddExtensionObject("urn:helper", new XsltHelper());
-
-            nuspec = SafeXmlTransform(nuspec.CreateReader(), XslTransformNormalizeNuSpecNamespaceCache.Value);
-            var rdfxml = SafeXmlTransform(nuspec.CreateReader(), XslTransformNuSpecCache.Value, arguments);
+            var rdfxml = GetRdfXml(nuspec, baseAddress);
 
             var doc = SafeCreateXmlDocument(rdfxml.CreateReader());
             if (normalizeXml)
@@ -87,6 +80,19 @@ namespace NuGet.Services.Metadata.Catalog
             rdfXmlParser.Load(graph, doc);
 
             return graph;
+        }
+
+        public static XDocument GetRdfXml(XDocument nuspec, string baseAddress)
+        {
+            XsltArgumentList arguments = new XsltArgumentList();
+            arguments.AddParam("base", "", baseAddress);
+            arguments.AddParam("extension", "", ".json");
+
+            arguments.AddExtensionObject("urn:helper", new XsltHelper());
+
+            nuspec = SafeXmlTransform(nuspec.CreateReader(), XslTransformNormalizeNuSpecNamespaceCache.Value);
+            var rdfxml = SafeXmlTransform(nuspec.CreateReader(), XslTransformNuSpecCache.Value, arguments);
+            return rdfxml;
         }
 
         private static void NormalizeXml(XmlNode xmlNode)
