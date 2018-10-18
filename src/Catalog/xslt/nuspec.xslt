@@ -140,7 +140,22 @@
                 <xsl:with-param name="path" select="$path" />
               </xsl:apply-templates>
             </xsl:when>
-            
+
+            <xsl:when test="self::nuget:license">
+              <xsl:choose>
+                <xsl:when test="@type='file'">
+                  <ng:licenseFile>
+                    <xsl:value-of select="."/>
+                  </ng:licenseFile>
+                </xsl:when>
+                <xsl:when test="@type='expression'">
+                  <ng:licenseExpression>
+                    <xsl:value-of select="."/>
+                  </ng:licenseExpression>
+                </xsl:when>
+              </xsl:choose>
+            </xsl:when>
+
             <xsl:otherwise>
               <xsl:element name="{concat('ng:', local-name())}">
                 <xsl:value-of select="."/>
