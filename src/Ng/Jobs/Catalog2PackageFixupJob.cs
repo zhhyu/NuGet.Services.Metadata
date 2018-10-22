@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Ng.Jobs
         private CatalogIndexReader _catalogIndexReader;
         private CloudBlobContainer _container;
 
-        private Func<CatalogIndexEntry, CancellationToken, Task> _handler;
+        private Func<CatalogIndexEntry, Task> _handler;
 
         public Catalog2PackageFixupJob(ITelemetryService telemetryService, ILoggerFactory loggerFactory)
             : base(telemetryService, loggerFactory)
@@ -89,47 +90,30 @@ namespace Ng.Jobs
 
             var entries = await _catalogIndexReader.GetEntries();
 
-            var packageEntries = entries
+            var latestEntries = entries
                 .GroupBy(c => new PackageIdentity(c.Id, c.Version))
                 .Select(g => g.OrderByDescending(c => c.CommitTimeStamp).First())
                 .Where(c => !c.IsDelete());
 
+            var packageEntries = new ConcurrentBag<CatalogIndexEntry>(latestEntries);
+
             Logger.LogInformation("Processing packages.");
 
-            var semaphore = new SemaphoreSlim(MaxDegreeOfParallelism, MaxDegreeOfParallelism);
             var stopwatch = Stopwatch.StartNew();
-            var processed = 0;
-            var remaining = 0;
+            var processed = packageEntries.Count;
 
-            foreach (var packageEntry in packageEntries)
-            {
-                Interlocked.Increment(ref processed);
-                Interlocked.Increment(ref remaining);
-
-                await semaphore.WaitAsync();
-
-                using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            var tasks = Enumerable
+                .Range(0, ServicePointManager.DefaultConnectionLimit)
+                .Select(async i =>
                 {
-                    cancellationTokenSource.CancelAfter(MaximumPackageProcessingTime);
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    _handler(packageEntry, cancellationTokenSource.Token).ContinueWith(task =>
+                    while (packageEntries.TryTake(out var entry))
                     {
-                        semaphore.Release();
-                        Interlocked.Decrement(ref remaining);
-                    });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                }
-            }
+                        await _handler(entry);
+                    }
+                })
+                .ToList();
 
-            // Wait until all remaining packages have been processed.
-            while (remaining > 0)
-            {
-                Logger.LogInformation("{Remaining} packages left, sleeping...", remaining);
-                await Task.Delay(TimeSpan.FromMinutes(1));
-            }
-
-            stopwatch.Stop();
+            await Task.WhenAll(tasks);
 
             Logger.LogInformation(
                 "Processed {ProcessedCount} packages in {ProcessDuration}",
@@ -137,13 +121,13 @@ namespace Ng.Jobs
                 stopwatch.Elapsed);
         }
 
-        private async Task ValidatePackage(CatalogIndexEntry packageEntry, CancellationToken cancellationToken)
+        private async Task ValidatePackage(CatalogIndexEntry packageEntry)
         {
             try
             {
                 var blob = _container.GetBlockBlobReference(BuildPackageFileName(packageEntry));
 
-                await blob.FetchAttributesAsync(cancellationToken);
+                await blob.FetchAttributesAsync();
 
                 if (blob.Properties.ContentMD5 == null)
                 {
@@ -156,7 +140,7 @@ namespace Ng.Jobs
 
                 string hash;
                 using (var hashAlgorithm = MD5.Create())
-                using (var packageStream = await blob.OpenReadAsync(cancellationToken))
+                using (var packageStream = await blob.OpenReadAsync())
                 {
                     var hashBytes = hashAlgorithm.ComputeHash(packageStream);
                     hash = Convert.ToBase64String(hashBytes);
@@ -190,7 +174,7 @@ namespace Ng.Jobs
             }
         }
 
-        private async Task ProcessPackage(CatalogIndexEntry packageEntry, CancellationToken cancellationToken)
+        private async Task ProcessPackage(CatalogIndexEntry packageEntry)
         {
             try
             {
@@ -198,7 +182,7 @@ namespace Ng.Jobs
 
                 for (int i = 0; i < MaximumPackageProcessingAttempts; i++)
                 {
-                    await blob.FetchAttributesAsync(cancellationToken);
+                    await blob.FetchAttributesAsync();
 
                     if (blob.Properties.ContentMD5 != null)
                     {
@@ -210,7 +194,7 @@ namespace Ng.Jobs
                     {
                         string hash;
                         using (var hashAlgorithm = MD5.Create())
-                        using (var packageStream = await blob.OpenReadAsync(cancellationToken))
+                        using (var packageStream = await blob.OpenReadAsync())
                         {
                             var hashBytes = hashAlgorithm.ComputeHash(packageStream);
                             hash = Convert.ToBase64String(hashBytes);
@@ -222,8 +206,7 @@ namespace Ng.Jobs
                         await blob.SetPropertiesAsync(
                             condition,
                             options: null,
-                            operationContext: null,
-                            cancellationToken: cancellationToken);
+                            operationContext: null);
 
                         Logger.LogWarning(
                             "Updated hash '{Hash}' for package {PackageId} {PackageVersion} with ETag {ETag}",
