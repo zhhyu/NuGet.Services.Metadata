@@ -16,15 +16,20 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using NuGet.Packaging.Core;
 using NuGet.Services.Configuration;
 using NuGet.Services.Metadata.Catalog;
+using NuGetGallery;
 
 namespace Ng.Jobs
 {
     public class Catalog2PackageFixupJob : LoopingNgJob
     {
+        private const int MaximumPackageProcessingAttempts = 5;
+        private static readonly TimeSpan MaximumPackageProcessingTime = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan DonePollingInterval = TimeSpan.FromMinutes(1);
+
         private CatalogIndexReader _catalogIndexReader;
         private CloudBlobContainer _container;
 
-        private Func<CatalogIndexEntry, Task> _handler;
+        private Func<CatalogIndexEntry, CancellationToken, Task> _handler;
 
         public Catalog2PackageFixupJob(ITelemetryService telemetryService, ILoggerFactory loggerFactory)
             : base(telemetryService, loggerFactory)
@@ -68,10 +73,12 @@ namespace Ng.Jobs
             // Prepare the handler that will run on each catalog entry.
             if (verify)
             {
+                Logger.LogInformation("Validating that all packages have the proper Content MD5 hash...");
                 _handler = ValidatePackage;
             }
             else
             {
+                Logger.LogInformation("Ensuring all packages have a Content MD5 hash...");
                 _handler = ProcessPackage;
             }
         }
@@ -101,20 +108,25 @@ namespace Ng.Jobs
 
                 await semaphore.WaitAsync();
 
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                _handler(packageEntry).ContinueWith(task =>
+                using (var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                 {
-                    semaphore.Release();
-                    Interlocked.Decrement(ref remaining);
-                });
+                    cancellationTokenSource.CancelAfter(MaximumPackageProcessingTime);
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    _handler(packageEntry, cancellationTokenSource.Token).ContinueWith(task =>
+                    {
+                        semaphore.Release();
+                        Interlocked.Decrement(ref remaining);
+                    });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                }
             }
 
-            // Waiting until all remaining packages have been processed.
+            // Wait until all remaining packages have been processed.
             while (remaining > 0)
             {
                 Logger.LogInformation("{Remaining} packages left, sleeping...", remaining);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromMinutes(1));
             }
 
             stopwatch.Stop();
@@ -125,13 +137,13 @@ namespace Ng.Jobs
                 stopwatch.Elapsed);
         }
 
-        private async Task ValidatePackage(CatalogIndexEntry packageEntry)
+        private async Task ValidatePackage(CatalogIndexEntry packageEntry, CancellationToken cancellationToken)
         {
             try
             {
                 var blob = _container.GetBlockBlobReference(BuildPackageFileName(packageEntry));
 
-                await blob.FetchAttributesAsync();
+                await blob.FetchAttributesAsync(cancellationToken);
 
                 if (blob.Properties.ContentMD5 == null)
                 {
@@ -144,7 +156,7 @@ namespace Ng.Jobs
 
                 string hash;
                 using (var hashAlgorithm = MD5.Create())
-                using (var packageStream = await blob.OpenReadAsync())
+                using (var packageStream = await blob.OpenReadAsync(cancellationToken))
                 {
                     var hashBytes = hashAlgorithm.ComputeHash(packageStream);
                     hash = Convert.ToBase64String(hashBytes);
@@ -160,27 +172,30 @@ namespace Ng.Jobs
                         blob.Properties.ContentMD5);
                 }
             }
-            catch (StorageException e) when (IsPackageDoesNotExistException(e))
+            catch (Exception e)
             {
                 Logger.LogError(
-                    "Package {PackageId} {PackageVersion} is missing from the packages container!",
+                    0,
+                    e,
+                    "Could not validate package {PackageId} {PackageVersion}!",
                     packageEntry.Id,
                     packageEntry.Version);
             }
         }
 
-        private async Task ProcessPackage(CatalogIndexEntry packageEntry)
+        private async Task ProcessPackage(CatalogIndexEntry packageEntry, CancellationToken cancellationToken)
         {
             try
             {
                 var blob = _container.GetBlockBlobReference(BuildPackageFileName(packageEntry));
 
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < MaximumPackageProcessingAttempts; i++)
                 {
-                    await blob.FetchAttributesAsync();
+                    await blob.FetchAttributesAsync(cancellationToken);
 
                     if (blob.Properties.ContentMD5 != null)
                     {
+                        // Skip the package if it has a Content MD5 hash. Don't log to minimize noise.
                         return;
                     }
 
@@ -188,7 +203,7 @@ namespace Ng.Jobs
                     {
                         string hash;
                         using (var hashAlgorithm = MD5.Create())
-                        using (var packageStream = await blob.OpenReadAsync())
+                        using (var packageStream = await blob.OpenReadAsync(cancellationToken))
                         {
                             var hashBytes = hashAlgorithm.ComputeHash(packageStream);
                             hash = Convert.ToBase64String(hashBytes);
@@ -196,13 +211,12 @@ namespace Ng.Jobs
 
                         blob.Properties.ContentMD5 = hash;
 
+                        var condition = new AccessCondition { IfMatchETag = blob.Properties.ETag };
                         await blob.SetPropertiesAsync(
-                            new AccessCondition
-                            {
-                                IfMatchETag = blob.Properties.ETag
-                            },
+                            condition,
                             options: null,
-                            operationContext: null);
+                            operationContext: null,
+                            cancellationToken: cancellationToken);
 
                         Logger.LogWarning(
                             "Updated hash '{Hash}' for package {PackageId} {PackageVersion} with ETag {ETag}",
@@ -212,12 +226,12 @@ namespace Ng.Jobs
                             blob.Properties.ETag);
                         return;
                     }
-                    catch (StorageException e)
+                    catch (StorageException e) when (e.IsPreconditionFailedException())
                     {
                         Logger.LogError(
                             0,
                             e,
-                            "Updating hash for package {PackageId} {PackageVersion} failed. Attempt {Attempt} of 5",
+                            $"Updating hash for package {{PackageId}} {{PackageVersion}} failed. Attempt {{Attempt}} of {MaximumPackageProcessingAttempts}",
                             packageEntry.Id,
                             packageEntry.Version,
                             i + 1);
@@ -225,14 +239,7 @@ namespace Ng.Jobs
                 }
 
                 Logger.LogError(
-                    "Failed to update package {PackageId} {PackageVersion}",
-                    packageEntry.Id,
-                    packageEntry.Version);
-            }
-            catch (StorageException e) when (IsPackageDoesNotExistException(e))
-            {
-                Logger.LogError(
-                    "Package {PackageId} {PackageVersion} is missing from the packages container!",
+                    $"Failed to update package {{PackageId}} {{PackageVersion}} after {MaximumPackageProcessingAttempts} attempts",
                     packageEntry.Id,
                     packageEntry.Version);
             }
@@ -245,11 +252,6 @@ namespace Ng.Jobs
                     packageEntry.Id,
                     packageEntry.Version);
             }
-        }
-
-        private bool IsPackageDoesNotExistException(StorageException e)
-        {
-            return e?.RequestInformation?.HttpStatusCode == (int?)HttpStatusCode.NotFound;
         }
 
         private string BuildPackageFileName(CatalogIndexEntry packageEntry)
