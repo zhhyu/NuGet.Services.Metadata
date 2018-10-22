@@ -172,6 +172,13 @@ namespace Ng.Jobs
                         blob.Properties.ContentMD5);
                 }
             }
+            catch (StorageException e) when (IsPackageDoesNotExistException(e))
+            {
+                Logger.LogError(
+                    "Package {PackageId} {PackageVersion} is missing from the packages container!",
+                    packageEntry.Id,
+                    packageEntry.Version);
+            }
             catch (Exception e)
             {
                 Logger.LogError(
@@ -243,15 +250,27 @@ namespace Ng.Jobs
                     packageEntry.Id,
                     packageEntry.Version);
             }
+            catch (StorageException e) when (IsPackageDoesNotExistException(e))
+            {
+                Logger.LogError(
+                    "Package {PackageId} {PackageVersion} is missing from the packages container!",
+                    packageEntry.Id,
+                    packageEntry.Version);
+            }
             catch (Exception e)
             {
                 Logger.LogError(
                     0,
                     e,
-                    "Failed to update package {PackageId} {PackageVersion}",
+                    "Could not process package {PackageId} {PackageVersion}",
                     packageEntry.Id,
                     packageEntry.Version);
             }
+        }
+
+        private bool IsPackageDoesNotExistException(StorageException e)
+        {
+            return e?.RequestInformation?.HttpStatusCode == (int?)HttpStatusCode.NotFound;
         }
 
         private string BuildPackageFileName(CatalogIndexEntry packageEntry)
